@@ -32,8 +32,10 @@ DIST, PHI, THETA = getposture()  # 眼睛与观察目标之间的距离、仰角
 
 
 def init():
-    glClearColor(0.0, 0.0, 0.0, 1.0)  # 设置画布背景色。注意：这里必须是4个参数
+    glClearColor(1.0, 1.0, 1.0, 1.0)  # 设置画布背景色。注意：这里必须是4个参数
     glEnable(GL_DEPTH_TEST)  # 开启深度测试，实现遮挡关系
+    glEnable(GL_LINE_SMOOTH)
+    glEnable(GL_POLYGON_SMOOTH)
     glDepthFunc(GL_LEQUAL)  # 设置深度测试函数（GL_LEQUAL只是选项之一）
 
 
@@ -78,104 +80,96 @@ def draw():
     # 设置视口
     glViewport(0, 0, WIN_W, WIN_H)
 
-    # ---------------------------------------------------------------
-    draw_frame()
-    # ---------------------------------------------------------------
-    # glBegin(GL_TRIANGLES)  # 开始绘制三角形（z轴负半区）
-    #
-    # glColor4f(1.0, 0.0, 0.0, 1.0)  # 设置当前颜色为红色不透明
-    # glVertex3f(-0.5, -0.366, -0.5)  # 设置三角形顶点
-    # glColor4f(0.0, 1.0, 0.0, 1.0)  # 设置当前颜色为绿色不透明
-    # glVertex3f(0.5, -0.366, -0.5)  # 设置三角形顶点
-    # glColor4f(0.0, 0.0, 1.0, 1.0)  # 设置当前颜色为蓝色不透明
-    # glVertex3f(0.0, 0.5, -0.5)  # 设置三角形顶点
-    #
-    # glEnd()  # 结束绘制三角形
+    # ---------------------draw boundary-----------------------------
 
+    draw_cube(0, 0, 0, size=1, color=[1, 0, 0, 1], mode="WIRED")
+    Obstacles, agents = scan_world(world, mode="WORLD")
+    goals_position = scan_world(goals, mode="GOAL")
+    create_obstacles(Obstacles, size=world.shape[0])
+    create_agents_and_goals(agents, size=world.shape[0], mode="AGENT")
+    create_agents_and_goals(goals_position, size=world.shape[0], mode="GOAL")
     # ---------------------------------------------------------------
-    # glBegin(GL_TRIANGLES)  # 开始绘制三角形（z轴正半区）
-    #
-    # glColor4f(1.0, 0.0, 0.0, 1.0)  # 设置当前颜色为红色不透明
-    # glVertex3f(-0.5, 0.5, 0.5)  # 设置三角形顶点
-    # glColor4f(0.0, 1.0, 0.0, 1.0)  # 设置当前颜色为绿色不透明
-    # glVertex3f(0.5, 0.5, 0.5)  # 设置三角形顶点
-    # glColor4f(0.0, 0.0, 1.0, 1.0)  # 设置当前颜色为蓝色不透明
-    # glVertex3f(0.0, -0.366, 0.5)  # 设置三角形顶点
-    #
-    # glEnd()  # 结束绘制三角形
 
-    # ---------------------------------------------------------------
     glutSwapBuffers()  # 切换缓冲区，以显示绘制内容
 
 
-def draw_frame():
-    glBegin(GL_LINES)  # 开始绘制线段（世界坐标系）
+def create_obstacles(Obstacles, size):
+    for num in range(0, len(Obstacles)):
+        x = Obstacles[num][0]
+        y = Obstacles[num][1]
+        z = Obstacles[num][2]
+        draw_cube(x, y, z, size=size, color=[176 / 256, 192 / 256, 222 / 256, 1], mode="SOLID")
+        draw_cube(x, y, z, size, [0, 0, 0, 1], mode="WIRED")
+        # obstacles color is grey
 
-    # 以红色绘制x轴
-    glColor4f(1.0, 0.0, 0.0, 1.0)  # 设置当前颜色为红色不透明
-    # glVertex3f(-1, -1, -1)  #1
-    # glVertex3f(1, -1, -1)  #2
-    # glVertex3f(-1, 1, -1)  #3
-    # glVertex3f(-1, -1, 1)  #4
-    # glVertex3f(1, 1, -1)  #5
-    # glVertex3f(1, -1, 1)  #6
-    # glVertex3f(-1, 1, 1)  #7
-    # glVertex3f(1, 1, 1)  #8
 
-    # drawing order : 12,26,64,41;
-    #                 35,58,87,73;
-    #                 13,25,68,47
+def create_agents_and_goals(agents, size, mode="AGENT"):
+    for num in range(0, len(agents)):
+        if num > 9:
+            num_color = num % 10
+        else:
+            num_color = num
+        x = agents[num][0]
+        y = agents[num][1]
+        z = agents[num][2]
 
-    glColor4f(1.0, 0.0, 0.0, 1.0)
+        color_set = [[1 * i / 256, 10 * i+10 / 256, 1 * i / 256] for i in range(0, 9)]
+        color_r = color_set[num_color][0]
+        color_g = color_set[num_color][1]
+        color_b = color_set[num_color][2]
 
-    glColor4f(1.0, 0.0, 0.0, 1.0)
-    glVertex3f(-1, -1, -1)  # 1
-    glVertex3f(1, -1, -1)  # 2
+        draw_cube(x, y, z, size=size, color=[color_r, color_g, color_b, 1], mode="SOLID")
+        if mode is "GOAL":
+            draw_cube(x, y, z, size, [1, 1, 0, 1], mode="WIRED")
+        # obstacles color is grey
 
-    glColor4f(1.0, 0.0, 0.0, 1.0)
-    glVertex3f(1, -1, -1)  # 2
-    glVertex3f(1, -1, 1)  # 6
 
-    glColor4f(1.0, 0.0, 0.0, 1.0)
-    glVertex3f(1, -1, 1)
-    glVertex3f(-1, -1, 1)
+def scan_world(world, mode="WORLD"):
+    if mode is "WORLD":
+        Obstacles = []
+        agents = []
+        for i in range(0, world.shape[0]):
+            for j in range(0, world.shape[1]):
+                for k in range(0, world.shape[2]):
+                    if world[i, j, k] == -1:
+                        Obstacles.append([i, j, k])
+                    elif world[i, j, k] > 0:
+                        agents.append([i, j, k])
 
-    glColor4f(1.0, 0.0, 0.0, 1.0)
-    glVertex3f(-1, -1, 1)  # 4
-    glVertex3f(-1, -1, -1)  # 1
+        return Obstacles, agents
 
-    glColor4f(1.0, 0.0, 0.0, 1.0)
-    glVertex3f(-1, 1, -1)  # 3
-    glVertex3f(1, 1, -1)  # 5
+    elif mode is "GOAL":
+        goals = []
+        for i in range(0, world.shape[0]):
+            for j in range(0, world.shape[1]):
+                for k in range(0, world.shape[2]):
+                    if world[i, j, k] > 0:
+                        goals.append([i, j, k])
 
-    glColor4f(1.0, 0.0, 0.0, 1.0)
-    glVertex3f(1, 1, -1)  # 5
-    glVertex3f(1, 1, 1)  # 8
+        return goals
 
-    glColor4f(1.0, 0.0, 0.0, 1.0)
-    glVertex3f(1, 1, 1)  # 8
-    glVertex3f(-1, 1, 1)  # 7
 
-    glColor4f(1.0, 0.0, 0.0, 1.0)
-    glVertex3f(-1, 1, 1)  # 7
-    glVertex3f(-1, 1, -1)  # 3
-
-    glColor4f(1.0, 0.0, 0.0, 1.0)
-    glVertex3f(-1, -1, -1)  # 1
-    glVertex3f(-1, 1, -1)  # 3
-
-    glColor4f(1.0, 0.0, 0.0, 1.0)
-    glVertex3f(1, -1, -1)  # 2
-    glVertex3f(1, 1, -1)  # 5
-
-    glColor4f(1.0, 0.0, 0.0, 1.0)
-    glVertex3f(1, -1, 1)  # 6
-    glVertex3f(1, 1, 1)  # 8
-
-    glColor4f(1.0, 0.0, 0.0, 1.0)
-    glVertex3f(-1, -1, 1)  # 4
-    glVertex3f(-1, 1, 1)  # 7
-    glEnd()  # 结束绘制线段
+def draw_cube(x, y, z, size=1, color=None, mode="SOLID"):
+    if color is None:
+        color = [1, 1, 1, 1]
+    x_ = -1 + 2 / size * (x + 0.5)
+    y_ = -1 + 2 / size * (y + 0.5)
+    z_ = -1 + 2 / size * (z + 0.5)
+    if mode is "SOLID":
+        glColor4f(color[0], color[1], color[2], color[3])
+        glPushMatrix()
+        glTranslatef(x_, y_, z_)
+        glutSolidCube(2 / size)
+        glPopMatrix()
+    elif mode is "WIRED":
+        glColor4f(color[0], color[1], color[2], color[3])
+        glPushMatrix()
+        glTranslatef(x_, y_, z_)
+        glutWireCube(2 / size)
+        glPopMatrix()
+    else:
+        print("Mode input error")
+        sys.exit(1)
 
 
 def reshape(width, height):
@@ -266,6 +260,38 @@ def keydown(key, x, y):
 
 
 if __name__ == "__main__":
+    world = np.array([[[-1, -1, -1, 0, 0],
+                       [0, 0, 0, 0, 0],
+                       [1, 0, 0, 0, 0]],
+                      [[-1, -1, -1, 0, 0],
+                       [0, 0, 0, 0, 0],
+                       [0, 0, 0, 0, 0]],
+                      [[-1, -1, -1, 0, 0],
+                       [0, 0, 0, 0, 0],
+                       [0, 0, 0, 0, 0]],
+                      [[0, -1, -1, 0, 0],
+                       [0, 0, 0, 0, 0],
+                       [0, 0, 0, 0, 0]],
+                      [[0, 0, 2, 0, 0],
+                       [-1, 0, 0, 0, 0],
+                       [0, 0, 0, 0, 0]]])
+
+    goals = np.array([[[0, 0, 0, 0, 1],
+                       [0, 0, 0, 0, 0],
+                       [0, 0, 0, 0, 0]],
+                      [[0, 0, 0, 0, 0],
+                       [0, 0, 0, 0, 0],
+                       [0, 0, 0, 0, 0]],
+                      [[0, 0, 0, 0, 0],
+                       [0, 0, 0, 0, 0],
+                       [0, 0, 0, 0, 0]],
+                      [[0, 0, 0, 0, 0],
+                       [0, 0, 0, 0, 0],
+                       [0, 0, 0, 0, 0]],
+                      [[2, 0, 0, 0, 0],
+                       [0, 0, 0, 0, 0],
+                       [0, 0, 0, 0, 0]]])
+
     glutInit()
     displayMode = GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH
     glutInitDisplayMode(displayMode)

@@ -136,6 +136,7 @@ class CubeWorld:
         glEnd()
         # side lines
         glBegin(GL_LINE)
+
         glColor4f(color[0], color[1], color[2], color[3])
         glVertex3f(x_, y_, z_)  # 1
         glVertex3f(x_, y__, z_)  # 1
