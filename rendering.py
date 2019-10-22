@@ -87,7 +87,9 @@ class CubeWorld:
         glViewport(0, 0, WIN_W, WIN_H)
 
         obstacles = self.scanObstacles(self.world)
-        self.create_obstacles(obstacles, size=self.size)
+        self.create_obstacles(obstacles, size=self.size, color=None)
+
+        glutSwapBuffers()  # 切换缓冲区，以显示绘制内容
 
     def create_obstacles(self, Obstacles, size, color):
         for num in range(0, len(Obstacles)):
@@ -152,8 +154,7 @@ class CubeWorld:
 
         glEnd()
 
-    # ---------------------------------------------------------------
-    glutSwapBuffers()  # 切换缓冲区，以显示绘制内容
+
 
 
 def reshape(width, height):
