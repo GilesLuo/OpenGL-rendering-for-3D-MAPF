@@ -8,3 +8,8 @@ two 3D metrices world and goals, they must be "cube" metrices, which means that 
 
 Output:
 A exe window virsualizes the given world and goals metrices, which allows you to change projection through mouse dragging.
+
+
+Please do not reprint without authorization.
+Welcome to discuss Python questions!
+Enjoy your reading
