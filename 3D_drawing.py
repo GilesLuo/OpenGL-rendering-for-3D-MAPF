@@ -3,15 +3,15 @@ from OpenGL.GLU import *
 from OpenGL.GLUT import *
 import numpy as np
 
-IS_PERSPECTIVE = True  # 透视投影
-VIEW = np.array([-0.8, 0.8, -0.8, 0.8, 1.0, 20.0])  # 视景体的left/right/bottom/top/near/far六个面
-SCALE_K = np.array([1.0, 1.0, 1.0])  # 模型缩放比例
-EYE = np.array([0.0, 0.0, 2.0])  # 眼睛的位置（默认z轴的正方向）
-LOOK_AT = np.array([0.0, 0.0, 0.0])  # 瞄准方向的参考点（默认在坐标原点）
-EYE_UP = np.array([0.0, 1.0, 0.0])  # 定义对观察者而言的上方（默认y轴的正方向）
-WIN_W, WIN_H = 640, 480  # 保存窗口宽度和高度的变量
-LEFT_IS_DOWNED = False  # 鼠标左键被按下
-MOUSE_X, MOUSE_Y = 0, 0  # 考察鼠标位移量时保存的起始位置
+IS_PERSPECTIVE = True  
+VIEW = np.array([-0.8, 0.8, -0.8, 0.8, 1.0, 20.0])  
+SCALE_K = np.array([1.0, 1.0, 1.0])  
+EYE = np.array([0.0, 0.0, 2.0])  
+LOOK_AT = np.array([0.0, 0.0, 0.0]) 
+EYE_UP = np.array([0.0, 1.0, 0.0])  
+WIN_W, WIN_H = 640, 480  
+LEFT_IS_DOWNED = False  
+MOUSE_X, MOUSE_Y = 0, 0  
 
 
 def getposture():
@@ -28,15 +28,15 @@ def getposture():
     return dist, phi, theta
 
 
-DIST, PHI, THETA = getposture()  # 眼睛与观察目标之间的距离、仰角、方位角
+DIST, PHI, THETA = getposture() 
 
 
 def init():
-    glClearColor(1.0, 1.0, 1.0, 1.0)  # 设置画布背景色。注意：这里必须是4个参数
-    glEnable(GL_DEPTH_TEST)  # 开启深度测试，实现遮挡关系
+    glClearColor(1.0, 1.0, 1.0, 1.0) 
+    glEnable(GL_DEPTH_TEST)  
     glEnable(GL_LINE_SMOOTH)
     glEnable(GL_POLYGON_SMOOTH)
-    glDepthFunc(GL_LEQUAL)  # 设置深度测试函数（GL_LEQUAL只是选项之一）
+    glDepthFunc(GL_LEQUAL)  
 
 
 def draw():
@@ -45,10 +45,8 @@ def draw():
     global SCALE_K
     global WIN_W, WIN_H
 
-    # 清除屏幕及深度缓存
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-    # 设置投影（透视投影）
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
 
@@ -63,21 +61,17 @@ def draw():
         else:
             glOrtho(VIEW[0], VIEW[1], VIEW[2] * WIN_H / WIN_W, VIEW[3] * WIN_H / WIN_W, VIEW[4], VIEW[5])
 
-    # 设置模型视图
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
 
-    # 几何变换
     glScale(SCALE_K[0], SCALE_K[1], SCALE_K[2])
 
-    # 设置视点
     gluLookAt(
         EYE[0], EYE[1], EYE[2],
         LOOK_AT[0], LOOK_AT[1], LOOK_AT[2],
         EYE_UP[0], EYE_UP[1], EYE_UP[2]
     )
 
-    # 设置视口
     glViewport(0, 0, WIN_W, WIN_H)
 
     # ---------------------draw boundary-----------------------------
@@ -90,7 +84,7 @@ def draw():
     create_agents_and_goals(goals_position, size=world.shape[0], mode="GOAL")
     # ---------------------------------------------------------------
 
-    glutSwapBuffers()  # 切换缓冲区，以显示绘制内容
+    glutSwapBuffers()  
 
 
 def create_obstacles(Obstacles, size):
@@ -231,30 +225,30 @@ def keydown(key, x, y):
     global IS_PERSPECTIVE, VIEW
 
     if key in [b'x', b'X', b'y', b'Y', b'z', b'Z']:
-        if key == b'x':  # 瞄准参考点 x 减小
+        if key == b'x':  
             LOOK_AT[0] -= 0.01
-        elif key == b'X':  # 瞄准参考 x 增大
+        elif key == b'X':  
             LOOK_AT[0] += 0.01
-        elif key == b'y':  # 瞄准参考点 y 减小
+        elif key == b'y':  
             LOOK_AT[1] -= 0.01
-        elif key == b'Y':  # 瞄准参考点 y 增大
+        elif key == b'Y':  
             LOOK_AT[1] += 0.01
-        elif key == b'z':  # 瞄准参考点 z 减小
+        elif key == b'z':  
             LOOK_AT[2] -= 0.01
-        elif key == b'Z':  # 瞄准参考点 z 增大
+        elif key == b'Z':  
             LOOK_AT[2] += 0.01
 
         DIST, PHI, THETA = getposture()
         glutPostRedisplay()
-    elif key == b'\r':  # 回车键，视点前进
+    elif key == b'\r':  
         EYE = LOOK_AT + (EYE - LOOK_AT) * 0.9
         DIST, PHI, THETA = getposture()
         glutPostRedisplay()
-    elif key == b'\x08':  # 退格键，视点后退
+    elif key == b'\x08':  
         EYE = LOOK_AT + (EYE - LOOK_AT) * 1.1
         DIST, PHI, THETA = getposture()
         glutPostRedisplay()
-    elif key == b' ':  # 空格键，切换投影模式
+    elif key == b' ':  
         IS_PERSPECTIVE = not IS_PERSPECTIVE
         glutPostRedisplay()
 
@@ -301,10 +295,10 @@ if __name__ == "__main__":
     glutCreateWindow('Quidam Of OpenGL')
 
     init()  # 初始化画布
-    glutDisplayFunc(draw)  # 注册回调函数draw()
-    glutReshapeFunc(reshape)  # 注册响应窗口改变的函数reshape()
-    glutMouseFunc(mouseclick)  # 注册响应鼠标点击的函数mouseclick()
-    glutMotionFunc(mousemotion)  # 注册响应鼠标拖拽的函数mousemotion()
-    glutKeyboardFunc(keydown)  # 注册键盘输入的函数keydown()
+    glutDisplayFunc(draw)  
+    glutReshapeFunc(reshape)  
+    glutMouseFunc(mouseclick)  
+    glutMotionFunc(mousemotion)  
+    glutKeyboardFunc(keydown)  
 
-    glutMainLoop()  # 进入glut主循环
+    glutMainLoop()  
